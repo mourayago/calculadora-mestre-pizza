@@ -1,0 +1,14 @@
+{
+  "name": "pizza-specialist-calculator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:pages": "node --check src/frontend/App.js && node --check src/server/index.js",
+    "dev": "node src/server/index.js",
+    "start": "node src/server/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
