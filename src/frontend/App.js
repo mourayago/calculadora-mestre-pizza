@@ -305,6 +305,180 @@ const MATURATION_TABLE = {
   96: { dry: [1, 2], fresh: [3, 6] }
 };
 
+const PROFESSOR_MASS_PRESETS = [
+  {
+    type: "Farinha Nacional - Curta Fermentacao Pobre",
+    flourType: "Usar Farinha Nacional - Tipo 1",
+    salt: 0.02,
+    oliveOil: 0.05,
+    water: 0.54,
+    milk: 0,
+    butter: 0,
+    sugar: 0.04,
+    egg: 0,
+    milkPowder: 0,
+    dryYeast: 0.01,
+    vegetableOil: 0
+  },
+  {
+    type: "Farinha Nacional - Curta Fermentacao Rica",
+    flourType: "Usar Farinha Nacional - Tipo 1",
+    salt: 0.025,
+    oliveOil: 0.04,
+    water: 0.25,
+    milk: 0.25,
+    butter: 0.04,
+    sugar: 0.04,
+    egg: 0.001,
+    milkPowder: 0,
+    dryYeast: 0.01,
+    vegetableOil: 0
+  },
+  {
+    type: "Farinha Nacional - Longa Fermentacao (24 h)",
+    flourType: "Usar Farinha Nacional - Tipo 1 (Forte)",
+    salt: 0.025,
+    oliveOil: 0.04,
+    water: 0.6,
+    milk: 0,
+    butter: 0,
+    sugar: 0,
+    egg: 0,
+    milkPowder: 0,
+    dryYeast: 0.01,
+    vegetableOil: 0
+  },
+  {
+    type: "Farinha Nacional - Longa Fermentacao (48 h)",
+    flourType: "Usar Farinha Nacional - Tipo 1 (Forte)",
+    salt: 0.025,
+    oliveOil: 0.04,
+    water: 0.6,
+    milk: 0,
+    butter: 0,
+    sugar: 0,
+    egg: 0,
+    milkPowder: 0,
+    dryYeast: 0.005,
+    vegetableOil: 0
+  },
+  {
+    type: "Farinha Italiana - Curta Fermentacao",
+    flourType: "Usar Farinha Italiana 00 Classica",
+    salt: 0.025,
+    oliveOil: 0.03,
+    water: 0.6,
+    milk: 0,
+    butter: 0,
+    sugar: 0,
+    egg: 0,
+    milkPowder: 0,
+    dryYeast: 0.01,
+    vegetableOil: 0
+  },
+  {
+    type: "Farinha Italiana - Longa Fermentacao (24 h)",
+    flourType: "Usar Farinha Italiana 00 W superior ou igual a 300",
+    salt: 0.025,
+    oliveOil: 0.03,
+    water: 0.65,
+    milk: 0,
+    butter: 0,
+    sugar: 0,
+    egg: 0,
+    milkPowder: 0,
+    dryYeast: 0.01,
+    vegetableOil: 0
+  },
+  {
+    type: "Farinha Italiana - Longa Fermentacao (48 h)",
+    flourType: "Usar Farinha Italiana 00 W superior ou igual a 300",
+    salt: 0.025,
+    oliveOil: 0.03,
+    water: 0.65,
+    milk: 0,
+    butter: 0,
+    sugar: 0,
+    egg: 0,
+    milkPowder: 0,
+    dryYeast: 0.008,
+    vegetableOil: 0
+  },
+  {
+    type: "Farinha Italiana - Longa Fermentacao (72 h)",
+    flourType: "Usar Farinha Italiana 00 W superior ou igual a 300",
+    salt: 0.025,
+    oliveOil: 0.03,
+    water: 0.65,
+    milk: 0,
+    butter: 0,
+    sugar: 0,
+    egg: 0,
+    milkPowder: 0,
+    dryYeast: 0.004,
+    vegetableOil: 0
+  },
+  {
+    type: "Farinha Italiana - Longa Fermentacao (96 h)",
+    flourType: "Usar Farinha Italiana 00 W superior ou igual a 300",
+    salt: 0.025,
+    oliveOil: 0.03,
+    water: 0.65,
+    milk: 0,
+    butter: 0,
+    sugar: 0,
+    egg: 0,
+    milkPowder: 0,
+    dryYeast: 0.002,
+    vegetableOil: 0
+  },
+  {
+    type: "Farinha Italiana - Longa Fermentacao (120 h)",
+    flourType: "Usar Farinha Italiana 00 W superior ou igual a 300",
+    salt: 0.025,
+    oliveOil: 0.03,
+    water: 0.65,
+    milk: 0,
+    butter: 0,
+    sugar: 0,
+    egg: 0,
+    milkPowder: 0,
+    dryYeast: 0.001,
+    vegetableOil: 0
+  },
+  {
+    type: "Massa PAN Hut",
+    flourType: "Usar Farinha Nacional - Tipo 1",
+    flourPerPizza: 300,
+    salt: 0.0083,
+    oliveOil: 0,
+    water: 0.5833,
+    milk: 0,
+    butter: 0,
+    sugar: 0.0417,
+    egg: 0,
+    milkPowder: 0.0583,
+    dryYeast: 0.0166,
+    vegetableOil: 0.0666
+  },
+  {
+    type: "Massa PAN Domino's",
+    aliases: ["Massa PAN Domino´s"],
+    flourType: "Usar Farinha Nacional - Tipo 1 (Forte)",
+    flourPerPizza: 200,
+    salt: 0.0167,
+    oliveOil: 0,
+    water: 0.5833,
+    milk: 0,
+    butter: 0,
+    sugar: 0.0833,
+    egg: 0,
+    milkPowder: 0.05,
+    dryYeast: 0.0083,
+    vegetableOil: 0.0666
+  }
+];
+
 function classifyFlour({ protein, w }) {
   const proteinValue = Number(protein);
   const wValue = Number(w);
@@ -330,6 +504,11 @@ function grams(value) {
   if (!Number.isFinite(value)) return "0 g";
   const rounded = value >= 10 ? Math.round(value) : Math.round(value * 10) / 10;
   return `${rounded.toLocaleString("pt-BR")} g`;
+}
+
+function formatProfessorAmount(value, unit) {
+  if (unit === "un") return `${Math.round(value).toLocaleString("pt-BR")} un`;
+  return grams(value);
 }
 
 function pct(value) {
@@ -358,6 +537,28 @@ function getMaturationYeastRange(maturationHours, yeastType, flourGrams) {
     percentMax: percentRange[1],
     percentMid: (percentRange[0] + percentRange[1]) / 2
   };
+}
+
+function calculateProfessorPreset({ presetType, flour, pizzaCount }) {
+  const preset = PROFESSOR_MASS_PRESETS.find((item) => item.type === presetType || item.aliases?.includes(presetType)) || PROFESSOR_MASS_PRESETS[0];
+  const pizzas = Math.max(Number(pizzaCount) || 0, 0);
+  const flourGrams = preset.flourPerPizza ? pizzas * preset.flourPerPizza : Math.max(Number(flour) || 0, 0);
+  const rows = [
+    { label: "Farinha", amount: flourGrams, unit: "g", percent: 1, showZero: true },
+    { label: "Sal", amount: flourGrams * preset.salt, unit: "g", percent: preset.salt },
+    { label: "Azeite", amount: flourGrams * preset.oliveOil, unit: "g", percent: preset.oliveOil },
+    { label: "Agua", amount: flourGrams * preset.water, unit: "g", percent: preset.water, showZero: true },
+    { label: "Leite integral", amount: flourGrams * preset.milk, unit: "g", percent: preset.milk },
+    { label: "Manteiga", amount: flourGrams * preset.butter, unit: "g", percent: preset.butter },
+    { label: "Acucar", amount: flourGrams * preset.sugar, unit: "g", percent: preset.sugar },
+    { label: "Ovo", amount: Math.ceil(flourGrams * preset.egg), unit: "un", percent: preset.egg },
+    { label: "Leite em po", amount: Math.ceil(flourGrams * preset.milkPowder), unit: "g", percent: preset.milkPowder },
+    { label: "Fermento biologico seco", amount: Math.ceil(flourGrams * preset.dryYeast), unit: "g", percent: preset.dryYeast },
+    { label: "ou fermento biologico fresco", amount: Math.ceil(flourGrams * preset.dryYeast) * 3, unit: "g", percent: preset.dryYeast * 3 },
+    { label: "Oleo vegetal", amount: Math.ceil(flourGrams * preset.vegetableOil), unit: "g", percent: preset.vegetableOil }
+  ];
+  const total = rows.reduce((sum, row) => sum + (row.unit === "g" ? row.amount : 0), 0);
+  return { preset, flourGrams, rows, total };
 }
 
 function calculateRecipe({ flour, protein, w, hydration, yeastType, yeastMode, yeastValue, maturationHours, napoletana }) {
@@ -406,6 +607,9 @@ function App() {
   const [maturationHours, setMaturationHours] = useState(24);
   const [napoletana, setNapoletana] = useState(false);
   const [activeSection, setActiveSection] = useState("massa");
+  const [professorPresetType, setProfessorPresetType] = useState(PROFESSOR_MASS_PRESETS[0].type);
+  const [professorFlour, setProfessorFlour] = useState(1000);
+  const [professorPizzaCount, setProfessorPizzaCount] = useState(3);
   const classKey = classifyFlour({ protein, w });
   const flourClass = FLOUR_CLASSES[classKey];
   const [hydration, setHydration] = useState(flourClass.hydrationDefault);
@@ -418,6 +622,10 @@ function App() {
   );
   const balls = Math.floor(recipe.total / (Number(ballWeight) || 1));
   const leftover = recipe.total - balls * (Number(ballWeight) || 0);
+  const professorRecipe = useMemo(
+    () => calculateProfessorPreset({ presetType: professorPresetType, flour: professorFlour, pizzaCount: professorPizzaCount }),
+    [professorPresetType, professorFlour, professorPizzaCount]
+  );
 
   function applyClassDefault() {
     setHydration(flourClass.hydrationDefault);
@@ -588,6 +796,38 @@ function App() {
           ),
           h("p", { className: "chef-note" }, recipe.flourClass.note)
         )
+        ),
+        h("section", { className: "professor-panel panel" },
+          h("div", { className: "panel-heading" },
+            h("span", { className: "heading-icon" }, "P"),
+            h("div", null,
+              h("h2", null, "Modelo do professor"),
+              h("p", null, "Calculadora extraida da planilha Mestre da Pizza; a selecao equivale a celula C7.")
+            )
+          ),
+          h("div", { className: "professor-controls" },
+            h("label", { className: "field professor-type" },
+              h("span", null, "Tipo de massa"),
+              h("select", { value: professorPresetType, onChange: (event) => setProfessorPresetType(event.target.value) },
+                PROFESSOR_MASS_PRESETS.map((preset) => h("option", { key: preset.type, value: preset.type }, preset.type))
+              )
+            ),
+            h(NumberField, { label: "Quantidade de farinha (g)", value: professorFlour, onChange: setProfessorFlour, min: 0, step: 50 }),
+            h(NumberField, { label: "Quantidade de pizzas", value: professorPizzaCount, onChange: setProfessorPizzaCount, min: 0, step: 1 })
+          ),
+          h("div", { className: "professor-summary" },
+            h("div", null, h("span", null, "Tipo de farinha"), h("strong", null, professorRecipe.preset.flourType)),
+            h("div", null, h("span", null, "Farinha calculada"), h("strong", null, grams(professorRecipe.flourGrams))),
+            h("div", null, h("span", null, "Massa aprox."), h("strong", null, grams(professorRecipe.total)))
+          ),
+          h("div", { className: "professor-table" },
+            professorRecipe.rows.map((row) => h("div", { className: row.amount > 0 || row.showZero ? "professor-row" : "professor-row muted", key: row.label },
+              h("span", null, row.label),
+              h("strong", null, row.amount > 0 || row.showZero ? formatProfessorAmount(row.amount, row.unit) : "-"),
+              h("small", null, row.percent ? pct(Math.round(row.percent * 10000) / 100) : "-")
+            ))
+          ),
+          h("p", { className: "chef-note" }, "Nos modelos PAN, a farinha e calculada pela quantidade de pizzas: 300 g por pizza na PAN Hut e 200 g por pizza na PAN Domino's.")
         ),
         h("section", { className: "info-grid" },
         h("article", { className: "panel guidance" },

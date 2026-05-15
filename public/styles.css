@@ -518,6 +518,95 @@ h1 {
   font-weight: 850;
 }
 
+.professor-panel {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+}
+
+.professor-controls {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.4fr) minmax(160px, 0.8fr) minmax(150px, 0.7fr);
+  gap: 12px;
+  align-items: end;
+}
+
+.professor-type {
+  min-width: 0;
+}
+
+.professor-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(160px, 0.6fr) minmax(150px, 0.6fr);
+  gap: 10px;
+}
+
+.professor-summary div {
+  min-height: 70px;
+  padding: 14px;
+  border-radius: 8px;
+  color: #fff;
+  background: var(--basil);
+}
+
+.professor-summary span,
+.professor-summary strong {
+  display: block;
+}
+
+.professor-summary span {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.professor-summary strong {
+  margin-top: 6px;
+  line-height: 1.15;
+}
+
+.professor-table {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.professor-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px 90px;
+  gap: 10px;
+  align-items: center;
+  min-height: 44px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.professor-row:last-child {
+  border-bottom: 0;
+}
+
+.professor-row span {
+  font-weight: 800;
+}
+
+.professor-row strong {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.professor-row small {
+  color: var(--muted);
+  text-align: right;
+}
+
+.professor-row.muted {
+  color: var(--muted);
+  background: #fbf8f1;
+}
+
 .section-block {
   display: grid;
   gap: 14px;
@@ -683,6 +772,11 @@ h1 {
     grid-template-columns: 1fr;
   }
 
+  .professor-controls,
+  .professor-summary {
+    grid-template-columns: 1fr;
+  }
+
   .cards,
   .sauce-grid,
   .flavor-grid,
@@ -710,6 +804,8 @@ h1 {
   }
 
   .split,
+  .professor-controls,
+  .professor-summary,
   .summary-band,
   .cards,
   .sauce-grid,
@@ -735,6 +831,15 @@ h1 {
   .map-row {
     grid-template-columns: 1fr;
     gap: 5px;
+  }
+
+  .professor-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .professor-row small {
+    grid-column: 1 / -1;
+    text-align: left;
   }
 
   .section-title {
