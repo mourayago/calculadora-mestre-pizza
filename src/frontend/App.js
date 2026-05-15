@@ -853,6 +853,27 @@ function App() {
             h("b", null, `${pct(item.hydrationMin)} a ${pct(item.hydrationMax)}`)
           ))
         ),
+        h("article", { className: "panel flour-guide" },
+          h("div", { className: "panel-heading" },
+            h("span", { className: "heading-icon" }, "F"),
+            h("div", null, h("h2", null, "Guia de farinha"), h("p", null, "Proteina, indice W e diferenca entre receita pobre e rica."))
+          ),
+          h("div", { className: "guide-block" },
+            h("h4", null, "Proteina"),
+            h("p", null, "Farinhas pobres ou fracas ficam em torno de 8% a 10% de proteina. Formam menos gluten, absorvem menos agua e combinam melhor com fermentacao curta."),
+            h("p", null, "Farinhas ricas ou fortes ficam em torno de 11% a 14% de proteina. Absorvem mais agua, seguram gases e suportam maturacao longa e borda napoletana.")
+          ),
+          h("div", { className: "guide-block" },
+            h("h4", null, "Indice W"),
+            h("p", null, "W abaixo de 170 indica farinha fraca. W entre 180 e 250 indica farinha media. W entre 280 e 320 indica farinha forte para longa fermentacao e alta hidratacao."),
+            h("p", null, "No Brasil, o W raramente aparece no rotulo; use a proteina da tabela nutricional como estimativa de forca.")
+          ),
+          h("div", { className: "guide-block" },
+            h("h4", null, "Massa pobre x massa rica"),
+            h("p", null, "Massa pobre leva farinha, agua, sal e fermento; e a base mais classica para napolitana e realca trigo e fermentacao."),
+            h("p", null, "Massa rica recebe ovos, leite, azeite, manteiga, acucar ou leite em po; tende a ficar mais macia, dourada e adequada a estilos caseiros ou PAN.")
+          )
+        ),
         h("article", { className: "panel maturation-map" },
           h("div", { className: "panel-heading" },
             h("span", { className: "heading-icon" }, "05"),

@@ -481,6 +481,35 @@ h1 {
   background: #fff1df;
 }
 
+.flour-guide {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+}
+
+.guide-block {
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.guide-block h4 {
+  margin: 0;
+  color: var(--tomato-dark);
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.guide-block p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
 .maturation-map {
   padding: 20px;
 }
