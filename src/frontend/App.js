@@ -295,7 +295,8 @@ const SECTIONS = [
   { id: "receitas", label: "Receitas do curso" },
   { id: "prefermentos", label: "Pre-Fermentacao" },
   { id: "molhos", label: "Molhos" },
-  { id: "sabores", label: "Coberturas / Sabores" }
+  { id: "sabores", label: "Coberturas / Sabores" },
+  { id: "compras", label: "Lista de compras" }
 ];
 
 const MATURATION_TABLE = {
@@ -561,6 +562,100 @@ function calculateProfessorPreset({ presetType, flour, pizzaCount }) {
   return { preset, flourGrams, rows, total };
 }
 
+function normalizeText(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function parsePantry(text) {
+  return String(text || "")
+    .split(/[\n,;]/)
+    .map(normalizeText)
+    .filter(Boolean);
+}
+
+function pantryHasItem(itemName, pantryItems) {
+  const normalizedName = normalizeText(itemName);
+  if (!normalizedName) return false;
+  return pantryItems.some((owned) => {
+    if (!owned) return false;
+    if (normalizedName.includes(owned) || owned.includes(normalizedName)) return true;
+    return owned.split(" ").every((word) => normalizedName.includes(word));
+  });
+}
+
+function parseIngredientLine(line, multiplier = 1, source = "") {
+  const text = String(line || "").trim();
+  const match = text.match(/^(\d+(?:[,.]\d+)?)\s*(kg|g|ml|l)?\s+(.+)$/i);
+  if (match) {
+    const rawAmount = Number(match[1].replace(",", "."));
+    const rawUnit = match[2]?.toLowerCase() || "un";
+    const unit = rawUnit === "kg" ? "g" : rawUnit === "l" ? "ml" : rawUnit;
+    const amount = rawUnit === "kg" || rawUnit === "l" ? rawAmount * 1000 : rawAmount;
+    return { name: match[3].trim(), amount: amount * multiplier, unit, source };
+  }
+  return { name: text, amount: null, unit: "a gosto", source };
+}
+
+function addShoppingItem(map, item) {
+  if (!item.name) return;
+  const key = `${normalizeText(item.name)}|${item.unit}`;
+  const current = map.get(key);
+  if (!current) {
+    map.set(key, { ...item, sources: item.source ? [item.source] : [] });
+    return;
+  }
+  if (Number.isFinite(item.amount) && Number.isFinite(current.amount)) current.amount += item.amount;
+  else current.amount = null;
+  if (item.source && !current.sources.includes(item.source)) current.sources.push(item.source);
+}
+
+function buildShoppingList({ quantities, pantryText, massSource, recipe, professorRecipe }) {
+  const pantryItems = parsePantry(pantryText);
+  const selectedFlavors = TOPPINGS
+    .map((flavor) => ({ flavor, quantity: Math.max(Number(quantities[flavor.title]) || 0, 0) }))
+    .filter((item) => item.quantity > 0);
+  const map = new Map();
+
+  if (massSource === "calculator") {
+    recipe.ingredients.forEach((ingredient) => {
+      addShoppingItem(map, {
+        name: ingredient.label,
+        amount: ingredient.amount,
+        unit: "g",
+        source: "Massa da calculadora"
+      });
+    });
+  }
+
+  if (massSource === "professor") {
+    professorRecipe.rows
+      .filter((row) => row.amount > 0 || row.showZero)
+      .forEach((row) => {
+        addShoppingItem(map, {
+          name: row.label,
+          amount: row.amount,
+          unit: row.unit,
+          source: "Modelo do professor"
+        });
+      });
+  }
+
+  selectedFlavors.forEach(({ flavor, quantity }) => {
+    flavor.ingredients.forEach((line) => addShoppingItem(map, parseIngredientLine(line, quantity, `${quantity}x ${flavor.title}`)));
+  });
+
+  const allItems = Array.from(map.values()).sort((a, b) => normalizeText(a.name).localeCompare(normalizeText(b.name)));
+  const missing = allItems.filter((item) => !pantryHasItem(item.name, pantryItems));
+  const owned = allItems.filter((item) => pantryHasItem(item.name, pantryItems));
+  return { selectedFlavors, allItems, missing, owned };
+}
+
 function calculateRecipe({ flour, protein, w, hydration, yeastType, yeastMode, yeastValue, maturationHours, napoletana }) {
   const flourGrams = Math.max(Number(flour) || 0, 0);
   const classKey = classifyFlour({ protein, w });
@@ -610,6 +705,13 @@ function App() {
   const [professorPresetType, setProfessorPresetType] = useState(PROFESSOR_MASS_PRESETS[0].type);
   const [professorFlour, setProfessorFlour] = useState(1000);
   const [professorPizzaCount, setProfessorPizzaCount] = useState(3);
+  const [shoppingMassSource, setShoppingMassSource] = useState("calculator");
+  const [pantryText, setPantryText] = useState("");
+  const [shoppingQuantities, setShoppingQuantities] = useState({
+    Pepperoni: 2,
+    Calabresa: 1,
+    "Margherita napoletana": 1
+  });
   const classKey = classifyFlour({ protein, w });
   const flourClass = FLOUR_CLASSES[classKey];
   const [hydration, setHydration] = useState(flourClass.hydrationDefault);
@@ -625,6 +727,16 @@ function App() {
   const professorRecipe = useMemo(
     () => calculateProfessorPreset({ presetType: professorPresetType, flour: professorFlour, pizzaCount: professorPizzaCount }),
     [professorPresetType, professorFlour, professorPizzaCount]
+  );
+  const shoppingList = useMemo(
+    () => buildShoppingList({
+      quantities: shoppingQuantities,
+      pantryText,
+      massSource: shoppingMassSource,
+      recipe,
+      professorRecipe
+    }),
+    [shoppingQuantities, pantryText, shoppingMassSource, recipe, professorRecipe]
   );
 
   function applyClassDefault() {
@@ -961,6 +1073,78 @@ function App() {
           h("p", null, "Forno profissional acima de 350 C no teto e 320 C no lastro. Em forno domestico, preaqueca por cerca de 1 hora na temperatura maxima com pedra refrataria, pedra sabao ou chapa de aco; asse por aproximadamente 8 a 10 minutos.")
         )
       ) : null
+      ,
+      activeSection === "compras" ? h("section", { className: "section-block shopping-section" },
+        h("div", { className: "section-title" },
+          h("h2", null, "Lista de compras"),
+          h("p", null, "Escolha massa, sabores e informe o que ja tem em casa para ver somente o que falta.")
+        ),
+        h("div", { className: "shopping-grid" },
+          h("article", { className: "panel shopping-panel" },
+            h("div", { className: "panel-heading" },
+              h("span", { className: "heading-icon" }, "1"),
+              h("div", null, h("h2", null, "Planejamento"), h("p", null, "Ajuste a massa na aba Massa se quiser mudar farinha, hidratacao ou modelo do professor."))
+            ),
+            h("label", { className: "field" },
+              h("span", null, "Massa para incluir"),
+              h("select", { value: shoppingMassSource, onChange: (event) => setShoppingMassSource(event.target.value) },
+                h("option", { value: "calculator" }, "Massa da calculadora"),
+                h("option", { value: "professor" }, "Modelo do professor"),
+                h("option", { value: "none" }, "Nao incluir massa")
+              )
+            ),
+            h("label", { className: "field" },
+              h("span", null, "O que ja tenho em casa"),
+              h("textarea", {
+                value: pantryText,
+                rows: 5,
+                placeholder: "Ex.: farinha, fermento seco, azeite, oregano",
+                onChange: (event) => setPantryText(event.target.value)
+              })
+            ),
+            h("div", { className: "shopping-summary" },
+              h("div", null, h("span", null, "Pizzas"), h("strong", null, shoppingList.selectedFlavors.reduce((sum, item) => sum + item.quantity, 0))),
+              h("div", null, h("span", null, "Itens faltando"), h("strong", null, shoppingList.missing.length)),
+              h("div", null, h("span", null, "Ja tenho"), h("strong", null, shoppingList.owned.length))
+            )
+          ),
+          h("article", { className: "panel shopping-panel" },
+            h("div", { className: "panel-heading" },
+              h("span", { className: "heading-icon" }, "2"),
+              h("div", null, h("h2", null, "Sabores"), h("p", null, "Digite a quantidade de pizzas de cada sabor."))
+            ),
+            h("div", { className: "flavor-picker" },
+              TOPPINGS.map((flavor) => h("label", { className: "flavor-pick-row", key: flavor.title },
+                h("span", null, flavor.title),
+                h("input", {
+                  type: "number",
+                  min: 0,
+                  step: 1,
+                  value: shoppingQuantities[flavor.title] || 0,
+                  onChange: (event) => setShoppingQuantities((current) => ({
+                    ...current,
+                    [flavor.title]: event.target.value
+                  }))
+                })
+              ))
+            )
+          )
+        ),
+        h("div", { className: "shopping-results" },
+          h("article", { className: "panel shopping-list-card" },
+            h("h3", null, "Comprar"),
+            shoppingList.missing.length
+              ? h("div", { className: "shopping-list" }, shoppingList.missing.map((item) => h(ShoppingItem, { key: `${item.name}-${item.unit}`, item })))
+              : h("p", { className: "empty-shopping" }, "Nada faltando com os itens informados.")
+          ),
+          h("article", { className: "panel shopping-list-card" },
+            h("h3", null, "Ja tenho"),
+            shoppingList.owned.length
+              ? h("div", { className: "shopping-list owned" }, shoppingList.owned.map((item) => h(ShoppingItem, { key: `${item.name}-${item.unit}`, item })))
+              : h("p", { className: "empty-shopping" }, "Informe ingredientes no campo acima para separar o que voce ja tem.")
+          )
+        )
+      ) : null
     )
   );
 }
@@ -987,6 +1171,23 @@ function IngredientRow({ ingredient }) {
       h("span", null, `${pct(ingredient.percent)} do padeiro`)
     ),
     h("b", null, grams(ingredient.amount))
+  );
+}
+
+function ShoppingItem({ item }) {
+  const amount = Number.isFinite(item.amount)
+    ? item.unit === "un"
+      ? `${Math.round(item.amount).toLocaleString("pt-BR")} un`
+      : item.unit === "a gosto"
+        ? "a gosto"
+        : `${(item.amount >= 10 ? Math.round(item.amount) : Math.round(item.amount * 10) / 10).toLocaleString("pt-BR")} ${item.unit}`
+    : "a gosto";
+  return h("div", { className: "shopping-item" },
+    h("div", null,
+      h("strong", null, item.name),
+      h("span", null, item.sources?.join(" + ") || "Planejamento")
+    ),
+    h("b", null, amount)
   );
 }
 
